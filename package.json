@@ -1,7 +1,8 @@
 {
+  "private": true,
   "name": "nginx-lua-cache",
   "version": "1.0.0",
-  "description": "nginx-lua-cache",
+  "description": "Caching utility for nginx based on Lua and OpenResty.",
   "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir lib",
