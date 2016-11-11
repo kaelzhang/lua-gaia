@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "nginx-lua-cache",
+  "name": "lua-nginx-cache",
   "version": "1.0.0",
-  "description": "Caching utility for nginx based on Lua and OpenResty.",
+  "description": "NginX cache addons in Lua, based on OpenResty.",
   "main": "index.js",
   "scripts": {
     "build": "babel src --out-dir lib",
@@ -11,10 +11,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kaelzhang/nginx-lua-cache.git"
+    "url": "git://github.com/kaelzhang/lua-nginx-cache.git"
   },
   "keywords": [
-    "nginx-lua-cache"
+    "lua-nginx-cache"
   ],
   "engines": {
     "node": ">=0.10.0"
@@ -22,7 +22,7 @@
   "author": "kaelzhang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaelzhang/nginx-lua-cache/issues"
+    "url": "https://github.com/kaelzhang/lua-nginx-cache/issues"
   },
   "devDependencies": {
     "ava": "^0.16.0",
