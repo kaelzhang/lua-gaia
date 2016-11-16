@@ -1,4 +1,10 @@
-# babel dist
+*.rdb
+
+# nginx
+proxy_temp
+scgi_temp
+
+# babel
 /lib
 
 # Numerous always-ignore extensions
