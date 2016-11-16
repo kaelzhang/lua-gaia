@@ -71,23 +71,8 @@ local COMMANDS = {
 }
 
 
-local function is_redis_null (res)
-  if type(res) == 'table' then
-    for k, v in pairs(res) do
-      if v ~= ngx.null then
-        return false
-      end
-    end
-    return true
-
-  elseif res == ngx.null then
-    return true
-
-  elseif res == nil then
-    return true
-  end
-
-  return false
+local function wrap_result (result)
+  return result ~= ngx.null and result or nil
 end
 
 
@@ -109,22 +94,22 @@ function M._close (self, red)
     return
   end
 
-  local ok, err = red:set_keepalive(self._max_idle_time, REDIS_POOL_SIZE)
+  local ok, err = red:set_keepalive(self._max_idle_time, self._pool_size)
 
   if not ok then
-    ngx_log(ngx_ERR, 'set redis keepalive error : ', err)
+    ngx_log(ngx_ERR, 'set redis keepalive error: ', err)
   end
 end
 
 
-function M._connect (self, red)
+function M._connect (self)
+  local red, err = redis:new()
+  if not red or err then
+    return nil, err
+  end
+
   red:set_timeout(self._timeout)
   return red:connect(self._hostname, self._host)
-end
-
-
-function M._keepalive (self, red)
-  red:set_keepalive(self._max_idle_time, self._pool_size)
 end
 
 
@@ -135,12 +120,7 @@ end
 
 
 local function _command(self, cmd, ... )
-  local red, err = redis:new()
-  if not red or err then
-    return nil, err
-  end
-
-  local ok, err = self:_connect(red)
+  local ok, err = self:_connect()
   if not ok or err then
     return nil, err
   end
@@ -151,13 +131,9 @@ local function _command(self, cmd, ... )
     return nil, err
   end
 
-  if is_redis_null(result) then
-    result = nil
-  end
+  self:_close(red)
 
-  self:_keepalive(red)
-
-  return result, err
+  return wrap_result(result), err
 end
 
 
