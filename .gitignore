@@ -1,4 +1,5 @@
 *.rdb
+*.pid
 
 # nginx
 proxy_temp
