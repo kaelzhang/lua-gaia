@@ -1,5 +1,6 @@
 *.rdb
 *.pid
+*-sample.lua
 
 # nginx
 proxy_temp

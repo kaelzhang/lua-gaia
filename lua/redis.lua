@@ -7,71 +7,27 @@ local ngx_ERR = ngx.ERR
 local json_encode = json.encode
 local json_decode = json.decode
 
-local M = {}
 local HOSTNAME = '127.0.0.1'
 local PORT = 6379
 local MAX_IDLE_TIME = 10000
 local POOL_SIZE = 500
 local TIMEOUT = 1000
 
--- local COMMANDS = {
-  -- 'append',            'auth',              'bgrewriteaof',
-  -- 'bgsave',            'bitcount',          'bitop',
-  -- 'blpop',             'brpop',
-  -- 'brpoplpush',        'client',            'config',
-  -- 'dbsize',
-  -- 'debug',             'decr',              'decrby',
-  -- 'del',               'discard',           'dump',
-  -- 'echo',
-  -- 'eval',              'exec',              'exists',
-  -- 'expire',            'expireat',          'flushall',
-  -- 'flushdb',           'get',               'getbit',
-  -- 'getrange',          'getset',            'hdel',
-  -- 'hexists',           'hget',              'hgetall',
-  -- 'hincrby',           'hincrbyfloat',      'hkeys',
-  -- 'hlen',
-  -- 'hmget',             'hmset',             'hscan',
-  -- 'hset',
-  -- 'hsetnx',            'hvals',             'incr',
-  -- 'incrby',            'incrbyfloat',       'info',
-  -- 'keys',
-  -- 'lastsave',          'lindex',            'linsert',
-  -- 'llen',              'lpop',              'lpush',
-  -- 'lpushx',            'lrange',            'lrem',
-  -- 'lset',              'ltrim',             'mget',
-  -- 'migrate',
-  -- 'monitor',           'move',              'mset',
-  -- 'msetnx',            'multi',             'object',
-  -- 'persist',           'pexpire',           'pexpireat',
-  -- 'ping',              'psetex',            'psubscribe',
-  -- 'pttl',
-  -- 'publish',      --[[ 'punsubscribe', ]]   'pubsub',
-  -- 'quit',
-  -- 'randomkey',         'rename',            'renamenx',
-  -- 'restore',
-  -- 'rpop',              'rpoplpush',         'rpush',
-  -- 'rpushx',            'sadd',              'save',
-  -- 'scan',              'scard',             'script',
-  -- 'sdiff',             'sdiffstore',
-  -- 'select',            'set',               'setbit',
-  -- 'setex',             'setnx',             'setrange',
-  -- 'shutdown',          'sinter',            'sinterstore',
-  -- 'sismember',         'slaveof',           'slowlog',
-  -- 'smembers',          'smove',             'sort',
-  -- 'spop',              'srandmember',       'srem',
-  -- 'sscan',
-  -- 'strlen',       --[[ 'subscribe',  ]]     'sunion',
-  -- 'sunionstore',       'sync',              'time',
-  -- 'ttl',
-  -- 'type',         --[[ 'unsubscribe', ]]    'unwatch',
-  -- 'watch',             'zadd',              'zcard',
-  -- 'zcount',            'zincrby',           'zinterstore',
-  -- 'zrange',            'zrangebyscore',     'zrank',
-  -- 'zrem',              'zremrangebyrank',   'zremrangebyscore',
-  -- 'zrevrange',         'zrevrangebyscore',  'zrevrank',
-  -- 'zscan',
-  -- 'zscore',            'zunionstore',       'evalsha'
--- }
+
+local M = {}
+
+function M.new(self, options)
+    options = options or {}
+
+    local instance = setmetatable({}, M)
+    instance._timeout = options.timeout or TIMEOUT
+    instance._max_idle_time = options.max_idle_time or MAX_IDLE_TIME
+    instance._pool_size = options.pool_size or POOL_SIZE
+    instance._hostname = options.hostname or HOSTNAME
+    instance._port = options.port or PORT
+
+    return instance
+end
 
 
 local function wrap_result (result)
@@ -177,6 +133,66 @@ function M.eget (self, key)
 end
 
 
+-- local COMMANDS = {
+  -- 'append',            'auth',              'bgrewriteaof',
+  -- 'bgsave',            'bitcount',          'bitop',
+  -- 'blpop',             'brpop',
+  -- 'brpoplpush',        'client',            'config',
+  -- 'dbsize',
+  -- 'debug',             'decr',              'decrby',
+  -- 'del',               'discard',           'dump',
+  -- 'echo',
+  -- 'eval',              'exec',              'exists',
+  -- 'expire',            'expireat',          'flushall',
+  -- 'flushdb',           'get',               'getbit',
+  -- 'getrange',          'getset',            'hdel',
+  -- 'hexists',           'hget',              'hgetall',
+  -- 'hincrby',           'hincrbyfloat',      'hkeys',
+  -- 'hlen',
+  -- 'hmget',             'hmset',             'hscan',
+  -- 'hset',
+  -- 'hsetnx',            'hvals',             'incr',
+  -- 'incrby',            'incrbyfloat',       'info',
+  -- 'keys',
+  -- 'lastsave',          'lindex',            'linsert',
+  -- 'llen',              'lpop',              'lpush',
+  -- 'lpushx',            'lrange',            'lrem',
+  -- 'lset',              'ltrim',             'mget',
+  -- 'migrate',
+  -- 'monitor',           'move',              'mset',
+  -- 'msetnx',            'multi',             'object',
+  -- 'persist',           'pexpire',           'pexpireat',
+  -- 'ping',              'psetex',            'psubscribe',
+  -- 'pttl',
+  -- 'publish',      --[[ 'punsubscribe', ]]   'pubsub',
+  -- 'quit',
+  -- 'randomkey',         'rename',            'renamenx',
+  -- 'restore',
+  -- 'rpop',              'rpoplpush',         'rpush',
+  -- 'rpushx',            'sadd',              'save',
+  -- 'scan',              'scard',             'script',
+  -- 'sdiff',             'sdiffstore',
+  -- 'select',            'set',               'setbit',
+  -- 'setex',             'setnx',             'setrange',
+  -- 'shutdown',          'sinter',            'sinterstore',
+  -- 'sismember',         'slaveof',           'slowlog',
+  -- 'smembers',          'smove',             'sort',
+  -- 'spop',              'srandmember',       'srem',
+  -- 'sscan',
+  -- 'strlen',       --[[ 'subscribe',  ]]     'sunion',
+  -- 'sunionstore',       'sync',              'time',
+  -- 'ttl',
+  -- 'type',         --[[ 'unsubscribe', ]]    'unwatch',
+  -- 'watch',             'zadd',              'zcard',
+  -- 'zcount',            'zincrby',           'zinterstore',
+  -- 'zrange',            'zrangebyscore',     'zrank',
+  -- 'zrem',              'zremrangebyrank',   'zremrangebyscore',
+  -- 'zrevrange',         'zrevrangebyscore',  'zrevrank',
+  -- 'zscan',
+  -- 'zscore',            'zunionstore',       'evalsha'
+-- }
+
+
 -- local function _command(self, cmd, ...)
 --   local ok, err = self:_connect()
 --   if not ok or err then
@@ -202,20 +218,6 @@ end
 --       return _command(self, cmd, ...)
 --     end
 -- end
-
-
-function M.new(self, options)
-    options = options or {}
-
-    local instance = setmetatable({}, M)
-    instance._timeout = options.timeout or TIMEOUT
-    instance._max_idle_time = options.max_idle_time or MAX_IDLE_TIME
-    instance._pool_size = options.pool_size or POOL_SIZE
-    instance._hostname = options.hostname or HOSTNAME
-    instance._port = options.port or PORT
-
-    return instance
-end
 
 
 return M
