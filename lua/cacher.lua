@@ -64,10 +64,35 @@ function load (self, fn)
 end
 
 
-function M.reload (key)
-  self.
+function M.reload (self, key)
+  local res = self:_load(key)
+  self:_set(age )
+  self:_set(key, res)
+  return res
+end
 
-function M.get(self)
-  local key = self:_hash_key()
-  return self:_get(key)
+
+function M.key (self)
+  return self:_hash_key()
+end
+
+
+function M.get(self, key, on_response)
+  local res, err, stale = self:_get(key)
+  local reloaded = false
+
+  if err then
+    reloaded = true
+    res = self:reload(key)
+  end
+
+  on_response(res)
+
+  if reloaded then
+    return
+  end
+
+  if stale then
+    self:reload(key)
+  end
 end

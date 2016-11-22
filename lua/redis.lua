@@ -85,6 +85,7 @@ end
 
 
 -- Set with expire time
+-- expires `int=` miniseconds
 function M.eset (self, key, value, expires)
   local red, err = self:_connect()
   if err then
@@ -92,9 +93,9 @@ function M.eset (self, key, value, expires)
   end
 
   -- `ngx.now()` returns seconds with miniseconds as the decimal part
-  local expiresAt = ngx_now() + expires / 1000
+  local expiresAt = expires and ngx_now() * 1000 + expires or nil
   local v = json_encode({
-    expires = expiresAt
+    expires = expiresAt,
     value = value
   })
 
@@ -126,14 +127,15 @@ function M.eget (self, key)
 
   local status, parsed = pcall(json_decode, result)
   if not status then
+    -- parsed will be the error message.
     return nil, parsed, true
   end
 
-  return parsed.value, nil, parsed.expires < ngx_now()
+  return parsed.value, nil, parsed.expires and parsed.expires < ngx_now() or true
 end
 
 
--- local COMMANDS = {
+local COMMANDS = {
   -- 'append',            'auth',              'bgrewriteaof',
   -- 'bgsave',            'bitcount',          'bitop',
   -- 'blpop',             'brpop',
@@ -190,34 +192,34 @@ end
   -- 'zrevrange',         'zrevrangebyscore',  'zrevrank',
   -- 'zscan',
   -- 'zscore',            'zunionstore',       'evalsha'
--- }
+}
 
 
--- local function _command(self, cmd, ...)
---   local ok, err = self:_connect()
---   if not ok or err then
---     return nil, err
---   end
+local function _command(self, cmd, ...)
+  local ok, err = self:_connect()
+  if not ok or err then
+    return nil, err
+  end
 
---   local fn = red[cmd]
---   local result, err = fun(red, ...)
---   if not result or err then
---     return nil, err
---   end
+  local fn = red[cmd]
+  local result, err = fun(red, ...)
+  if not result or err then
+    return nil, err
+  end
 
---   self:_close(red)
+  self:_close(red)
 
---   return wrap_result(result), err
--- end
+  return wrap_result(result), err
+end
 
 
--- for i = 1, #COMMANDS do
---   local cmd = COMMANDS[i]
---   M[cmd] =
---     function (self, ...)
---       return _command(self, cmd, ...)
---     end
--- end
+for i = 1, #COMMANDS do
+  local cmd = COMMANDS[i]
+  M[cmd] =
+    function (self, ...)
+      return _command(self, cmd, ...)
+    end
+end
 
 
 return M

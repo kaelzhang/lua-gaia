@@ -41,7 +41,7 @@ clean_installer () {
 }
 
 
-install_lua () {
+linux_install_lua () {
   log download "lua source codes"
   cd $DOWNLOAD_PREFIX
   curl -O http://www.lua.org/ftp/lua-5.3.3.tar.gz
@@ -65,12 +65,17 @@ install_lua () {
 }
 
 
+mac_install_lua () {
+  which lua || abort 'You should `brew install lua` first.'
+}
+
+
 # install_luajit () {
 
 # }
 
 
-install_cjson () {
+linux_install_cjson () {
   log download cjson
   git clone https://github.com/kaelzhang/lua-cjson.git $DOWNLOAD_PREFIX/lua-cjson
   cd $DOWNLOAD_PREFIX/lua-cjson
@@ -78,6 +83,11 @@ install_cjson () {
   log compile cjson
   make
   cp $DOWNLOAD_PREFIX/lua-cjson/cjson.so $GAEA_LUA_CPATH
+}
+
+
+mac_install_cjson () {
+
 }
 
 

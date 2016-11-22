@@ -1,6 +1,15 @@
+# redis db
 *.rdb
+
+# openresty(nginx) process id file
 *.pid
+
+# business
 *-sample.lua
+
+# lua c module dir and modules.
+/luac
+*.so
 
 # nginx
 proxy_temp
