@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GAEA_TMP=${}
+# GAIA_TMP=${}
 #
 
 #
@@ -23,9 +23,9 @@ DOWNLOAD_PREFIX=/usr/local/installer
 LUA_INCLUDE_DIR=${PREFIX}/include
 
 CJSON_SOURCE=$DOWNLOAD_PREFIX/installer
-GAEA_LUA_INSTALL_PLATFORM=${GAEA_LUA_INSTALL_PLATFORM-macosx}
-# GAEA_LUA_PATH
-# GAEA_LUA_CPATH
+GAIA_LUA_INSTALL_PLATFORM=${GAIA_LUA_INSTALL_PLATFORM-macosx}
+# GAIA_LUA_PATH
+# GAIA_LUA_CPATH
 
 
 mkdir $DOWNLOAD_PREFIX || echo "${DOWNLOAD_PREFIX} exists."
@@ -50,7 +50,7 @@ linux_install_lua () {
 
   log compile lua
   # Build lua bin
-  make $GAEA_LUA_INSTALL_PLATFORM test
+  make $GAIA_LUA_INSTALL_PLATFORM test
 
   # link lua include
   ln -sf $DOWNLOAD_PREFIX/lua-5.3.3/src $LUA_INCLUDE_DIR/lua
@@ -82,7 +82,7 @@ linux_install_cjson () {
 
   log compile cjson
   make
-  cp $DOWNLOAD_PREFIX/lua-cjson/cjson.so $GAEA_LUA_CPATH
+  cp $DOWNLOAD_PREFIX/lua-cjson/cjson.so $GAIA_LUA_CPATH
 }
 
 

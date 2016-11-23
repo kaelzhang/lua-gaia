@@ -2,7 +2,7 @@ require('shelljs/global')
 const path = require('path')
 
 function export_env (name, value) {
-  process.env['GAEA_' + name.toUpperCase()] = value
+  process.env['GAIA_' + name.toUpperCase()] = value
 }
 
 // const dir_sync = require('tmp').dirSync()
