@@ -19,7 +19,7 @@ local M = {}
 function M.new(self, options)
     options = options or {}
 
-    local instance = setmetatable({}, M)
+    local instance = setmetatable({}, {__index = M})
     instance._timeout = options.timeout or TIMEOUT
     instance._max_idle_time = options.max_idle_time or MAX_IDLE_TIME
     instance._pool_size = options.pool_size or POOL_SIZE
@@ -69,7 +69,7 @@ function M._connect (self)
   end
 
   red:set_timeout(self._timeout)
-  local ok, err = red:connect(self._hostname, self._host)
+  local ok, err = red:connect(self._hostname, self._port)
   if err then
     return nil, err
   end
@@ -116,26 +116,26 @@ end
 function M.eget (self, key)
   local red, err = self:_connect()
   if err then
-    -- if error, always set `stale` to `true`
-    return nil, err, true
+    -- if error, always set `stale` to `false`
+    return nil, err, false
   end
 
   local result, err = red:get(key)
   if not result or err then
-    return nil, err, true
+    return nil, err, false
   end
 
   local status, parsed = pcall(json_decode, result)
   if not status then
     -- parsed will be the error message.
-    return nil, parsed, true
+    return nil, parsed, false
   end
 
   return parsed.value, nil, parsed.expires and parsed.expires < ngx_now() or true
 end
 
 
-local COMMANDS = {
+-- local COMMANDS = {
   -- 'append',            'auth',              'bgrewriteaof',
   -- 'bgsave',            'bitcount',          'bitop',
   -- 'blpop',             'brpop',
@@ -192,34 +192,34 @@ local COMMANDS = {
   -- 'zrevrange',         'zrevrangebyscore',  'zrevrank',
   -- 'zscan',
   -- 'zscore',            'zunionstore',       'evalsha'
-}
+-- }
 
 
-local function _command(self, cmd, ...)
-  local ok, err = self:_connect()
-  if not ok or err then
-    return nil, err
-  end
+-- local function _command(self, cmd, ...)
+--   local ok, err = self:_connect()
+--   if not ok or err then
+--     return nil, err
+--   end
 
-  local fn = red[cmd]
-  local result, err = fun(red, ...)
-  if not result or err then
-    return nil, err
-  end
+--   local fn = red[cmd]
+--   local result, err = fun(red, ...)
+--   if not result or err then
+--     return nil, err
+--   end
 
-  self:_close(red)
+--   self:_close(red)
 
-  return wrap_result(result), err
-end
+--   return wrap_result(result), err
+-- end
 
 
-for i = 1, #COMMANDS do
-  local cmd = COMMANDS[i]
-  M[cmd] =
-    function (self, ...)
-      return _command(self, cmd, ...)
-    end
-end
+-- for i = 1, #COMMANDS do
+--   local cmd = COMMANDS[i]
+--   M[cmd] =
+--     function (self, ...)
+--       return _command(self, cmd, ...)
+--     end
+-- end
 
 
 return M

@@ -29,8 +29,8 @@ local M = {
 }
 
 
-function M.new (self, set, get)
-  return setmetatable({}, M)
+function M.new (self)
+  return setmetatable({}, {__index = M})
 end
 
 
@@ -58,35 +58,31 @@ function M.loader (self, fn)
 end
 
 
-function load (self, fn)
-  self._load = fn
-  return self
-end
-
-
 function M.reload (self, key)
-  local res = self:_load(key)
-  self:_set(age )
-  self:_set(key, res)
+  local res = self._load(key)
+  self._set(key, res)
   return res
 end
 
 
 function M.key (self)
-  return self:_hash_key()
+  return self._hash_key()
 end
 
 
 function M.get(self, key, on_response)
-  local res, err, stale = self:_get(key)
+  local res, err, stale = self._get(key)
   local reloaded = false
 
+  local hit = true
+
   if err then
-    reloaded = true
+    reloaded = false
+    stale = nil
     res = self:reload(key)
   end
 
-  on_response(res)
+  on_response(res, hit, stale)
 
   if reloaded then
     return
@@ -96,3 +92,5 @@ function M.get(self, key, on_response)
     self:reload(key)
   end
 end
+
+return M
