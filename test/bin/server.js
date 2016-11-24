@@ -1,21 +1,32 @@
 const express = require('express')
 const url = require('url')
 const bodyParser = require('body-parser')
+const uuid = require('uuid')
 
-const app = express()
-app.use(bodyParser.json())
 
-app.use((req, res) => {
-  const uri = url.parse(req.url, true)
-  const ret = {
-    pathname: uri.pathname,
-    query: uri.query,
-    headers: req.headers,
-    body: req.body
-  }
+module.exports = () => {
+  console.log('start server.')
 
-  console.log(ret)
-  res.json(ret)
-})
+  const app = express()
+  app.use(bodyParser.json())
 
-app.listen(8081)
+  app.use((req, res) => {
+    const uri = url.parse(req.url, true)
+
+    const headers = req.headers
+
+    header.id = uuid.v4()
+
+    const ret = {
+      pathname: uri.pathname,
+      query: uri.query,
+      headers,
+      body: req.body
+    }
+
+    res.json(ret)
+  })
+
+
+  app.listen(8081)
+}
