@@ -2,6 +2,8 @@ const test = require('ava')
 const Visit = require('./lib/visit')
 const server = require('./bin')
 
+const BACKEND_HOST = 'http://127.0.0.1:8080'
+
 const CASES = [
   {
     url: '/',
@@ -21,26 +23,28 @@ test.before('start up', async () => {
 })
 
 
-CASES.forEach(({req, cache, expires, only, headers, method, body}) => {
+CASES.forEach(({url, cache, expires, only, headers, method, body}) => {
   const _test = only
     ? test.cb.only
     : test.cb
 
-  _test(`${req}, cache:${cache}, expires:${expires}`, t => {
-    // const v = new Visit({
-    //   url,
-    //   method,
-    //   headers,
-    //   body
-    // })
+  url = BACKEND_HOST + url
 
-    // v.visit().then(({body, headers}) => {
+  _test(`${url}, cache:${cache}, expires:${expires}`, t => {
+    const v = new Visit({
+      url,
+      method,
+      headers,
+      body
+    })
 
-    // }, (err) => {
-    //   t.fail()
-    //   t.end()
-    // })
-
-    t.end()
+    v.visit().then(({body, headers}) => {
+      console.log(body, headers)
+      t.end()
+    }, (err) => {
+      console.error(err.stack)
+      t.fail()
+      t.end()
+    })
   })
 })

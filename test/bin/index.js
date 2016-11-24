@@ -16,4 +16,7 @@ module.exports = () => {
     server()
     return nginx()
   })
+  .catch((err) => {
+    console.error(err.stack)
+  })
 }

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node ./install/install.js",
     "test": "ava --verbose --timeout=10s",
-    "server": "node ./test/bin/start.js"
+    "server": "node ./test/bin"
   },
   "repository": {
     "type": "git",
