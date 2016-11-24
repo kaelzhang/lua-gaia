@@ -2,13 +2,8 @@ const {kill, file} = require('./util')
 const server = require('./server')
 const nginx = require('./nginx')
 
-function fail (err) {
-  console.error(err)
-  process.exit(1)
-}
 
-
-module.exports = () => {
+function start () {
   return Promise.all([
     kill(file('config/nginx.pid'))
   ])
@@ -19,4 +14,11 @@ module.exports = () => {
   .catch((err) => {
     console.error(err.stack)
   })
+}
+
+
+module.exports = start
+
+if (require.main === module) {
+  start()
 }
