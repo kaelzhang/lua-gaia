@@ -14,6 +14,7 @@ app.use((req, res) => {
     body: req.body
   }
 
+  console.log(ret)
   res.json(ret)
 })
 

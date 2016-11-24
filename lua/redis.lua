@@ -17,16 +17,16 @@ local TIMEOUT = 1000
 local M = {}
 
 function M.new(self, options)
-    options = options or {}
+  options = options or {}
 
-    local instance = setmetatable({}, {__index = M})
-    instance._timeout = options.timeout or TIMEOUT
-    instance._max_idle_time = options.max_idle_time or MAX_IDLE_TIME
-    instance._pool_size = options.pool_size or POOL_SIZE
-    instance._hostname = options.hostname or HOSTNAME
-    instance._port = options.port or PORT
+  local instance = setmetatable({}, {__index = M})
+  instance._timeout = options.timeout or TIMEOUT
+  instance._max_idle_time = options.max_idle_time or MAX_IDLE_TIME
+  instance._pool_size = options.pool_size or POOL_SIZE
+  instance._hostname = options.hostname or HOSTNAME
+  instance._port = options.port or PORT
 
-    return instance
+  return instance
 end
 
 
@@ -131,7 +131,7 @@ function M.eget (self, key)
     return nil, parsed, false
   end
 
-  return parsed.value, nil, parsed.expires and parsed.expires < ngx_now() or true
+  return parsed.value, nil, parsed.expires and parsed.expires < ngx_now() or false
 end
 
 

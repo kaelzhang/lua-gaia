@@ -12,21 +12,13 @@
 [![Dependency Status](https://david-dm.org/kaelzhang/lua-nginx-cache.svg)](https://david-dm.org/kaelzhang/lua-nginx-cache)
 -->
 
-# lua-nginx-cache
+# Gaia
 
-<!-- description -->
+Gaia, the NginX cache addons in Lua based on OpenResty.
 
 ## Install
 
-```sh
-$ npm install lua-nginx-cache --save
-```
 
-## Usage
-
-```js
-const nginx_lua_cache = require('lua-nginx-cache')
-```
 
 ## License
 
