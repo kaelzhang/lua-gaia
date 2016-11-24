@@ -1,21 +1,20 @@
 {
   "private": true,
-  "name": "lua-nginx-cache",
+  "name": "lua-gaia",
   "version": "1.0.0",
   "description": "NginX cache addons in Lua, based on OpenResty.",
   "main": "index.js",
   "scripts": {
     "build": "node ./install/install.js",
     "test": "ava --verbose --timeout=10s",
-    "test": "node ./test/start.js",
-    "server": "node ./test/lib/start.js"
+    "server": "node ./test/bin/start.js"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/kaelzhang/lua-nginx-cache.git"
+    "url": "git://github.com/kaelzhang/lua-gaia.git"
   },
   "keywords": [
-    "lua-nginx-cache"
+    "lua-gaia"
   ],
   "engines": {
     "node": ">=0.10.0"
@@ -23,7 +22,7 @@
   "author": "kaelzhang",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kaelzhang/lua-nginx-cache/issues"
+    "url": "https://github.com/kaelzhang/lua-gaia/issues"
   },
   "devDependencies": {
     "ava": "^0.16.0",

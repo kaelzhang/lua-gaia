@@ -1,15 +1,15 @@
-[![Build Status](https://travis-ci.org/kaelzhang/lua-nginx-cache.svg?branch=master)](https://travis-ci.org/kaelzhang/lua-nginx-cache)
+[![Build Status](https://travis-ci.org/kaelzhang/lua-gaia.svg?branch=master)](https://travis-ci.org/kaelzhang/lua-gaia)
 <!-- optional appveyor tst
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kaelzhang/lua-nginx-cache?branch=master&svg=true)](https://ci.appveyor.com/project/kaelzhang/lua-nginx-cache)
+[![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/kaelzhang/lua-gaia?branch=master&svg=true)](https://ci.appveyor.com/project/kaelzhang/lua-gaia)
 -->
 <!-- optional npm version
-[![NPM version](https://badge.fury.io/js/lua-nginx-cache.svg)](http://badge.fury.io/js/lua-nginx-cache)
+[![NPM version](https://badge.fury.io/js/lua-gaia.svg)](http://badge.fury.io/js/lua-gaia)
 -->
 <!-- optional npm downloads
-[![npm module downloads per month](http://img.shields.io/npm/dm/lua-nginx-cache.svg)](https://www.npmjs.org/package/lua-nginx-cache)
+[![npm module downloads per month](http://img.shields.io/npm/dm/lua-gaia.svg)](https://www.npmjs.org/package/lua-gaia)
 -->
 <!-- optional dependency status
-[![Dependency Status](https://david-dm.org/kaelzhang/lua-nginx-cache.svg)](https://david-dm.org/kaelzhang/lua-nginx-cache)
+[![Dependency Status](https://david-dm.org/kaelzhang/lua-gaia.svg)](https://david-dm.org/kaelzhang/lua-gaia)
 -->
 
 # Gaia
