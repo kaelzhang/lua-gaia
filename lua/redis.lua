@@ -109,7 +109,7 @@ function M.eset (self, key, value, expires)
 end
 
 
--- Get with expire time
+-- Get with expire time and hit count
 -- ```
 -- local result, err, stale = red:get('foo')
 -- ```
@@ -121,105 +121,52 @@ function M.eget (self, key)
   end
 
   local result, err = red:get(key)
-  if not result or err then
+  if err then
     return nil, err, false
   end
 
   local status, parsed = pcall(json_decode, result)
+
+  -- If fails to parse json
   if not status then
     -- parsed will be the error message.
     return nil, parsed, false
   end
 
-  return parsed.value, nil, parsed.expires and parsed.expires < ngx_now() or false
+  local stale = parsed.expires and parsed.expires < ngx_now() or false
+  return parsed.value, nil, stale, parsed.expires
 end
 
 
--- local COMMANDS = {
-  -- 'append',            'auth',              'bgrewriteaof',
-  -- 'bgsave',            'bitcount',          'bitop',
-  -- 'blpop',             'brpop',
-  -- 'brpoplpush',        'client',            'config',
-  -- 'dbsize',
-  -- 'debug',             'decr',              'decrby',
-  -- 'del',               'discard',           'dump',
-  -- 'echo',
-  -- 'eval',              'exec',              'exists',
-  -- 'expire',            'expireat',          'flushall',
-  -- 'flushdb',           'get',               'getbit',
-  -- 'getrange',          'getset',            'hdel',
-  -- 'hexists',           'hget',              'hgetall',
-  -- 'hincrby',           'hincrbyfloat',      'hkeys',
-  -- 'hlen',
-  -- 'hmget',             'hmset',             'hscan',
-  -- 'hset',
-  -- 'hsetnx',            'hvals',             'incr',
-  -- 'incrby',            'incrbyfloat',       'info',
-  -- 'keys',
-  -- 'lastsave',          'lindex',            'linsert',
-  -- 'llen',              'lpop',              'lpush',
-  -- 'lpushx',            'lrange',            'lrem',
-  -- 'lset',              'ltrim',             'mget',
-  -- 'migrate',
-  -- 'monitor',           'move',              'mset',
-  -- 'msetnx',            'multi',             'object',
-  -- 'persist',           'pexpire',           'pexpireat',
-  -- 'ping',              'psetex',            'psubscribe',
-  -- 'pttl',
-  -- 'publish',      --[[ 'punsubscribe', ]]   'pubsub',
-  -- 'quit',
-  -- 'randomkey',         'rename',            'renamenx',
-  -- 'restore',
-  -- 'rpop',              'rpoplpush',         'rpush',
-  -- 'rpushx',            'sadd',              'save',
-  -- 'scan',              'scard',             'script',
-  -- 'sdiff',             'sdiffstore',
-  -- 'select',            'set',               'setbit',
-  -- 'setex',             'setnx',             'setrange',
-  -- 'shutdown',          'sinter',            'sinterstore',
-  -- 'sismember',         'slaveof',           'slowlog',
-  -- 'smembers',          'smove',             'sort',
-  -- 'spop',              'srandmember',       'srem',
-  -- 'sscan',
-  -- 'strlen',       --[[ 'subscribe',  ]]     'sunion',
-  -- 'sunionstore',       'sync',              'time',
-  -- 'ttl',
-  -- 'type',         --[[ 'unsubscribe', ]]    'unwatch',
-  -- 'watch',             'zadd',              'zcard',
-  -- 'zcount',            'zincrby',           'zinterstore',
-  -- 'zrange',            'zrangebyscore',     'zrank',
-  -- 'zrem',              'zremrangebyrank',   'zremrangebyscore',
-  -- 'zrevrange',         'zrevrangebyscore',  'zrevrank',
-  -- 'zscan',
-  -- 'zscore',            'zunionstore',       'evalsha'
--- }
+local COMMANDS = {
+  'get', 'set', 'mget'
+}
 
 
--- local function _command(self, cmd, ...)
---   local ok, err = self:_connect()
---   if not ok or err then
---     return nil, err
---   end
+local function _command(self, cmd, ...)
+  local red, err = self:_connect()
+  if err then
+    return nil, err
+  end
 
---   local fn = red[cmd]
---   local result, err = fun(red, ...)
---   if not result or err then
---     return nil, err
---   end
+  local fn = red[cmd]
+  local result, err = fn(red, ...)
+  if err then
+    return nil, err
+  end
 
---   self:_close(red)
+  self:_close(red)
+  return wrap_result(result), err
+end
 
---   return wrap_result(result), err
--- end
 
-
--- for i = 1, #COMMANDS do
---   local cmd = COMMANDS[i]
---   M[cmd] =
---     function (self, ...)
---       return _command(self, cmd, ...)
---     end
--- end
+for i = 1, #COMMANDS do
+  local cmd = COMMANDS[i]
+  M[cmd] =
+    function (self, ...)
+      return _command(self, cmd, ...)
+    end
+end
 
 
 return M

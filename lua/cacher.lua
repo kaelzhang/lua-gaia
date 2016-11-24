@@ -65,29 +65,27 @@ function M.reload (self, key)
 end
 
 
-function M.key (self)
-  return self._hash_key()
-end
+function M.get(self, on_response, force_reload)
+  local key = self._hash_key()
+  local res, err, stale, expires = self._get(key)
 
-
-function M.get(self, key, on_response)
-  local res, err, stale = self._get(key)
   local reloaded = false
-
   local hit = true
 
-  if err then
-    reloaded = false
-    stale = nil
+  -- 1. cache not found
+  -- 2. redis connection error
+  -- 3. force to reload
+  if not res or err or force_reload then
+    reloaded = true
+    hit = false
+    stale = false
     res = self:reload(key)
   end
 
-  on_response(res, hit, stale)
+  on_response(res, hit, stale, expires)
 
-  if reloaded then
-    return
-  end
-
+  -- If stale, then we need reload cache
+  -- TODO: concurrency
   if stale then
     self:reload(key)
   end

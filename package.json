@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "build": "node ./install/install.js",
-    "test_a": "npm run build && ava --verbose --timeout=10s",
+    "test": "ava --verbose --timeout=10s",
     "test": "node ./test/start.js",
-    "prepublish": "npm run build"
+    "server": "node ./test/lib/start.js"
   },
   "repository": {
     "type": "git",

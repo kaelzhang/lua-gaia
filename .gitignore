@@ -5,7 +5,7 @@
 *.pid
 
 # business
-*-sample.lua
+# *-sample.lua
 
 # lua c module dir and modules.
 /luac
