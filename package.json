@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node ./install/install.js",
-    "test": "ava --verbose --timeout=10s",
+    "test": "bash test.sh",
     "server": "node ./test/bin"
   },
   "repository": {

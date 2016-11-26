@@ -25,11 +25,13 @@ function start () {
 }
 
 
-module.exports = () => {
+function kill_and_start () {
   return killall().then(start)
 }
 
+module.exports = kill_and_start
+
 
 if (require.main === module) {
-  start()
+  kill_and_start()
 }

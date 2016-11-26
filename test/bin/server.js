@@ -20,7 +20,7 @@ module.exports = () => {
 
     const headers = req.headers
 
-    header.id = uuid.v4()
+    headers.id = uuid.v4()
 
     const ret = {
       pathname: uri.pathname,
