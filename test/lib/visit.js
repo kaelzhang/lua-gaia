@@ -1,7 +1,6 @@
 const request = require('request')
 const { EventEmitter } = require('events')
-
-let uid = 0
+const uuid = require('uuid')
 
 const BACKEND_HOST = 'http://127.0.0.1:8080'
 
@@ -9,7 +8,6 @@ module.exports = class Visit extends EventEmitter {
   constructor (options) {
     super()
     this.options = options
-    this.uid = uid ++
   }
 
   visit () {
@@ -51,7 +49,8 @@ module.exports = class Visit extends EventEmitter {
       body = ''
     } = this.options
 
-    headers._uid = this.uid
+    const id = uuid.v4()
+    headers.id = id
 
     return new Promise((resolve, reject) => {
       request({
@@ -68,7 +67,8 @@ module.exports = class Visit extends EventEmitter {
 
         resolve({
           body,
-          headers: res.headers
+          headers: res.headers,
+          stale: headers.id !== id
         })
       })
     })

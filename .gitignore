@@ -6,6 +6,7 @@
 
 # business
 nohup.out
+redis.conf
 
 # lua c module dir and modules.
 /luac

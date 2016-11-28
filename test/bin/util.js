@@ -26,19 +26,18 @@ function ensure_no_process (pid) {
 }
 
 
-function read_pid (filename) {
+function read (filename) {
   return new Promise((resolve, reject) => {
     fs.readFile(filename, (err, content) => {
       if (err) {
         // if fails to read, then skip
-        return resolve()
+        return reject(err)
       }
 
       resolve(content.toString().trim())
     })
   })
 }
-
 
 
 const PROJECT_ROOT = path.join(__dirname, '..', '..')
@@ -50,14 +49,22 @@ function file (...paths) {
 
 
 function kill (filename) {
-  return read_pid(filename)
-  .then((pid) => {
-    return ensure_no_process(pid)
-  })
+  return read(filename)
+  .then(
+    (pid) => {
+      return ensure_no_process(pid)
+    },
+
+    (err) => {
+      console.error(`fails to read pid file "${filename}", skipping...`)
+      return
+    }
+  )
 }
 
 
 module.exports = {
   file,
-  kill
+  kill,
+  read
 }

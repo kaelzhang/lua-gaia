@@ -8,7 +8,7 @@ module.exports = () => {
     console.log('start openresty.')
     spawn('openresty', [
       '-c',
-      file('config/sample.conf'),
+      file('config/nginx-sample.conf'),
       '-p',
       file()
 

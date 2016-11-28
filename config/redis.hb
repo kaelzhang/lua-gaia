@@ -1,3 +1,6 @@
+# Redis configuration file doesn't support relative paths,
+#
+
 # Redis configuration file example.
 #
 # Note that in order to read the configuration file, Redis must be
@@ -43,7 +46,7 @@ daemonize no
 
 # When running daemonized, Redis writes a pid file in /var/run/redis.pid by
 # default. You can specify a custom pid file location here.
-pidfile /var/run/redis.pid
+pidfile {{redis-pid-file}}
 
 # Accept connections on the specified port, default is 6379.
 # If port 0 is specified Redis will not listen on a TCP socket.

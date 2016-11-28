@@ -1,7 +1,6 @@
 const express = require('express')
 const url = require('url')
 const bodyParser = require('body-parser')
-const uuid = require('uuid')
 const fs = require('fs')
 const fse = require('fs-extra')
 const {
@@ -19,8 +18,6 @@ module.exports = () => {
     const uri = url.parse(req.url, true)
 
     const headers = req.headers
-
-    headers.id = uuid.v4()
 
     const ret = {
       pathname: uri.pathname,
