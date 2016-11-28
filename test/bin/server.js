@@ -16,14 +16,14 @@ module.exports = () => {
 
   app.use((req, res) => {
     const uri = url.parse(req.url, true)
-
     const headers = req.headers
 
     const ret = {
       pathname: uri.pathname,
       query: uri.query,
       headers,
-      body: req.body
+      body: req.body,
+      code: req.headers.code || 200
     }
 
     res.json(ret)

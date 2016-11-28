@@ -6,6 +6,7 @@ local cacher = require 'cacher'
 local redis = require 'redis'
 local http = require 'resty.http'
 local json = require 'cjson'
+local json_encode = json.encode
 
 local red = redis:new()
 
@@ -19,7 +20,7 @@ local function hash_key ()
   end
 
   local args = ngx.req.get_uri_args()
-  key = key .. ',args=' .. json.encode(args)
+  key = key .. ',args=' .. json_encode(args)
 
   if headers['gaia-enable-body'] then
     ngx.req.read_body()
@@ -50,11 +51,18 @@ local function load (key)
 end
 
 
+local function when (res)
+  local ok, parsed = pcall(json_decode, res.body)
+  return not ok or ok and parsed.code == 200
+end
+
+
 local cache = cacher
 :new()
 :hash_key(hash_key)
 :getter(get)
 :setter(set)
 :loader(load)
+:when(when)
 
 return cache

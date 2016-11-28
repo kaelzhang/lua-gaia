@@ -9,7 +9,7 @@ const {
 } = require('../lib/util')
 
 function compile () {
-  return read(file('config/redis.hb'))
+  return read(file('config/redis.hbs'))
   .then((content) => {
     const template = handlebars.compile(content)
     const data = {

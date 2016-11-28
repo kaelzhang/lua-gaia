@@ -21,11 +21,18 @@ local function default_load ()
 end
 
 
+-- by default, always cache
+local function when (res)
+  return true
+end
+
+
 local M = {
   _hash_key = default_hash_key,
   _set = default_set,
   _get = default_get,
-  _load = default_load
+  _load = default_load,
+  _when = when
 }
 
 
@@ -52,6 +59,12 @@ function M.getter (self, fn)
 end
 
 
+function M.when(self, fn)
+  self._when = fn
+  return self
+end
+
+
 function M.loader (self, fn)
   self._load = fn
   return self
@@ -60,7 +73,11 @@ end
 
 function M.reload (self, key)
   local res = self._load(key)
-  self._set(key, res)
+
+  if self._when(res) then
+    self._set(key, res)
+  end
+
   return res
 end
 

@@ -1,12 +1,12 @@
 const test = require('ava')
 const Visit = require('./lib/visit')
 const sleep = require('sleep-promise')
+const url = require('url')
 
 const {
   read,
   file
 } = require('./lib/util')
-
 
 test.cb('environment: should has no errors', t => {
   read(file('nohup.out'))
@@ -17,35 +17,40 @@ test.cb('environment: should has no errors', t => {
   })
 })
 
-
 const BACKEND_HOST = 'http://127.0.0.1:8080'
 const SLEEP_TOLERANCE = 50
 
 const CASES = [
   {
     d: 'simple request',
-    url: '/',
+    u: '/',
     cache: true,
     expires: false
   },
 
   {
     d: 'expires',
-    url: '/expires-1s',
+    u: '/expires-1s',
+    h: {
+      'Gaia-Expires': '1000'
+    },
     expires: 1000,
     cache: true
   }
 ]
 
-
-CASES.forEach(({url, cache, expires, only, headers, method, body}) => {
+CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
   const _test = only
     ? test.cb.only
     : test.cb
 
-  url = BACKEND_HOST + url
+  u = BACKEND_HOST + u
 
-  _test(`${url}, cache:${cache}, expires:${expires}`, t => {
+  const parsed = url.parse(u, true)
+  const pathname = parsed.pathname
+  const query = parsed.query
+
+  _test(`${d}: ${u}, cache:${cache}, expires:${expires}`, t => {
     let ended = false
     function end () {
       if (ended) {
@@ -56,24 +61,61 @@ CASES.forEach(({url, cache, expires, only, headers, method, body}) => {
     }
 
     const v = new Visit({
-      url,
+      url: u,
       method,
-      headers,
-      body
+      headers: h,
+      body: b
     })
 
+    function basic_test (name, body, headers) {
+      t.is(body.pathname, pathname, `${name}: pathname`)
+      t.deepEqual(body.query, query, `${name}: query`)
+      t.deepEqual(body.body, b || {}, `${name}: body`)
+      t.is(headers['server'], 'Gaia/1.0.0', `${name}: header server`)
+    }
+
+    function visit_again () {
+      return v.visit()
+      .then(({body, headers, stale}) => {
+        basic_test('again', body, headers, t)
+
+        if (cache) {
+          t.is(headers['gaia-status'], 'HIT')
+        }
+      })
+    }
+
+    function visit_expire (after) {
+      return sleep(after)
+      .then(() => {
+        return v.visit()
+      })
+      .then(({body, headers, stale}) => {
+        basic_test('expire', body, headers, t)
+
+        t.is(stale, true, 'response should be stale if expires')
+        t.is(headers['gaia-status'], 'STALE', 'headers should be stale')
+      })
+    }
+
     v.visit().then(({body, headers, stale}) => {
-      console.log(headers)
+      basic_test('first', body, headers)
       t.is(headers['gaia-status'], 'MISS')
 
-      // if (expires) {
-      //   return sleep(expires + SLEEP_TOLERANCE)
-      //   .then(() => {
+      const tasks = [
+        visit_again()
+      ]
 
-      //   })
-      // }
-      end()
+      if (cache && expires) {
+        tasks.push(
+          visit_expire(expires)
+        )
+      }
 
+      Promise.all(tasks)
+      .then(() => {
+        end()
+      })
     })
     .catch((err) => {
       console.error(err.stack)

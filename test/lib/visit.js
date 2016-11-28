@@ -11,37 +11,36 @@ module.exports = class Visit extends EventEmitter {
   }
 
   visit () {
-    if (this.visited) {
+    if (!this.visited) {
       return this._visit()
     }
-    this.visited = true
 
-    return this._request()
-    .then(({body, headers}) => {
-      this.emit('visited')
-      this.res_id = headers.id
+    if (this.ready) {
+      return this._request()
+    }
 
-      return {
-        body,
-        headers
-      }
+    return new Promise((resolve) => {
+      this.on('ready', () => {
+        resolve()
+      })
+    })
+    .then(() => {
+      return this._request()
     })
   }
 
   _visit () {
     return this._request()
-    .then(({body, headers}) => {
-      const res_id = headers.id
-
-      return {
-        body,
-        headers,
-        hit: res_id === this.res_id
-      }
+    .then((res) => {
+      this.ready = true
+      this.emit('ready')
+      return res
     })
   }
 
   _request () {
+    this.visited = true
+
     const {
       url,
       method = 'GET',
@@ -68,7 +67,7 @@ module.exports = class Visit extends EventEmitter {
         resolve({
           body,
           headers: res.headers,
-          stale: headers.id !== id
+          stale: res.headers.id !== id
         })
       })
     })
