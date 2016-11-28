@@ -1,7 +1,7 @@
 const spawn = require('cross-spawn')
 const {
   file
-} = require('./util')
+} = require('../lib/util')
 
 module.exports = () => {
   return new Promise((resolve) => {

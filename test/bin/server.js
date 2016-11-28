@@ -5,7 +5,7 @@ const fs = require('fs')
 const fse = require('fs-extra')
 const {
   file
-} = require('./util')
+} = require('../lib/util')
 
 
 module.exports = () => {

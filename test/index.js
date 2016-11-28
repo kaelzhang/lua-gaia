@@ -2,6 +2,22 @@ const test = require('ava')
 const Visit = require('./lib/visit')
 const sleep = require('sleep-promise')
 
+const {
+  read,
+  file
+} = require('./lib/util')
+
+
+test.cb('environment: should has no errors', t => {
+  read(file('nohup.out'))
+  .then((content) => {
+    console.log(`nohup.out:\n${content}\n`)
+    t.is(/error/i.test(content), false)
+    t.end()
+  })
+})
+
+
 const BACKEND_HOST = 'http://127.0.0.1:8080'
 const SLEEP_TOLERANCE = 50
 

@@ -1,6 +1,6 @@
 module.exports = start
 
-const {kill, file} = require('./util')
+const {kill, file} = require('../lib/util')
 const server = require('./server')
 const nginx = require('./nginx')
 const redis_conf = require('./redis-conf')

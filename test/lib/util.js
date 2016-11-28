@@ -2,12 +2,12 @@ const fs = require('fs')
 const spawn = require('cross-spawn')
 const path = require('path')
 
-function ensure_no_process (pid) {
+function ensure_no_process (pid, description) {
   if (!pid) {
     return Promise.resolve()
   }
 
-  console.log(`kill ${pid}`)
+  console.log(`kill ${pid} <- ${description}`)
 
   return new Promise((resolve, reject) => {
     spawn('kill', [
@@ -48,11 +48,11 @@ function file (...paths) {
 }
 
 
-function kill (filename) {
+function kill (filename, description) {
   return read(filename)
   .then(
     (pid) => {
-      return ensure_no_process(pid)
+      return ensure_no_process(pid, description)
     },
 
     (err) => {

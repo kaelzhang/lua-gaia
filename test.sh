@@ -16,15 +16,17 @@ log kill services
 node ./test/bin/kill-all.js
 
 
-log delete "redis database file"
+log remove "redis database file"
 rm ./dump.rdb
 
+log remove "nohup.out"
+rm ./nohup.out
+
 log restart services
-# nohup node ./test/bin/start-all.js &
-node ./test/bin/start-all.js &
+nohup node ./test/bin/start-all.js &
 
 log start redis
 nohup redis-server ./config/redis.conf &
 
 log run "test cases"
-# ava --verbose --timeout=10s || abort "test fails"
+ava --verbose --timeout=10s || abort "test fails"

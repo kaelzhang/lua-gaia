@@ -1,12 +1,12 @@
 module.exports = killall
 
-const {kill, file} = require('./util')
+const {kill, file} = require('../lib/util')
 
 function killall () {
   return Promise.all([
-    kill(file('config/nginx.pid')),
-    kill(file('config/server.pid')),
-    kill('/var/run/redis.pid')
+    kill(file('config/nginx.pid'), 'nginx'),
+    kill(file('config/server.pid'), 'test-server'),
+    kill(file('config/redis.pid'), 'redis')
   ])
   .catch(() => {
     return

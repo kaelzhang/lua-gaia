@@ -6,18 +6,19 @@ const fs = require('fs')
 const {
   file,
   read
-} = require('./util')
+} = require('../lib/util')
 
 function compile () {
   return read(file('config/redis.hb'))
   .then((content) => {
     const template = handlebars.compile(content)
     const data = {
-      'redis-pid-file': file('config/redis.pid')
+      root: file()
     }
 
+    const config = template(data)
     return new Promise((resolve, reject) => {
-      fse.write(file('config/redis.conf'), template(data), (err) => {
+      fse.writeFile(file('config/redis.conf'), config, (err) => {
         if (err) {
           return reject(err)
         }
