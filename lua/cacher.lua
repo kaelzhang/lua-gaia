@@ -84,7 +84,7 @@ end
 
 function M.get(self, on_response, force_reload)
   local key = self._hash_key()
-  local res, err, stale, expires = self._get(key)
+  local res, err, stale, expires_at = self._get(key)
 
   local reloaded = false
   local hit = true
@@ -99,7 +99,7 @@ function M.get(self, on_response, force_reload)
     res = self:reload(key)
   end
 
-  on_response(res, hit, stale, expires)
+  on_response(res, hit, stale, expires_at)
 
   -- If stale, then we need reload cache
   -- TODO: concurrency

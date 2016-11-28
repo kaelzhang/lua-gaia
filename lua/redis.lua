@@ -93,9 +93,9 @@ function M.eset (self, key, value, expires)
   end
 
   -- `ngx.now()` returns seconds with miniseconds as the decimal part
-  local expiresAt = expires and ngx_now() * 1000 + expires or nil
+  local expires_at = expires and ngx_now() * 1000 + expires or nil
   local v = json_encode({
-    expires = expiresAt,
+    expires = expires_at,
     value = value
   })
 
@@ -133,7 +133,7 @@ function M.eget (self, key)
     return nil, parsed, false
   end
 
-  local stale = parsed.expires and parsed.expires < ngx_now() or false
+  local stale = parsed.expires and parsed.expires < ngx_now() * 1000 or false
   return parsed.value, nil, stale, parsed.expires
 end
 

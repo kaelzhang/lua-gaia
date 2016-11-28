@@ -2,7 +2,7 @@ local cache = require 'cache'
 local headers = ngx.req.get_headers()
 
 local STR_GAIA_STATUS = 'Gaia-Status'
-local STR_GAIA_EXPIRES = 'Gaia-Expires-At'
+local STR_GAIA_EXPIRES_AT = 'Gaia-Expires-At'
 
 -----------------------------------------------------------
 
@@ -12,7 +12,7 @@ if headers['gaia-include-body'] then
 end
 
 
-local function on_response (res, hit, stale, expires)
+local function on_response (res, hit, stale, expires_at)
   local header = ngx.header
 
   for k, v in pairs(res.header) do
@@ -23,8 +23,8 @@ local function on_response (res, hit, stale, expires)
     stale and 'STALE' or
     hit and 'HIT' or 'MISS'
 
-  if expires then
-    header[STR_GAIA_EXPIRES] = tostring(expires)
+  if expires_at then
+    header[STR_GAIA_EXPIRES_AT] = tostring(expires_at)
   end
 
   ngx.say(res.body)
