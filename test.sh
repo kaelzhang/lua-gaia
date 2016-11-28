@@ -15,6 +15,8 @@ log() {
 log kill services
 node ./test/bin/kill-all.js
 
+# give redis enough time to exit
+sleep 1
 
 log remove "redis database file"
 rm ./dump.rdb
