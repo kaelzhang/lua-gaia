@@ -7,6 +7,7 @@ local redis = require 'redis'
 local http = require 'resty.http'
 local json = require 'cjson'
 local json_encode = json.encode
+local json_decode = json.decode
 
 local red = redis:new()
 
@@ -53,7 +54,13 @@ end
 
 local function when (res)
   local ok, parsed = pcall(json_decode, res.body)
-  return not ok or ok and parsed.code == 200
+
+  return res.status == 200 and (
+    -- is not json
+    not ok
+    -- json with code: 200
+    or ok and parsed.code == 200
+  )
 end
 
 
