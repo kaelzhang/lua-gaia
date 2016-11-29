@@ -23,14 +23,14 @@ const SLEEP_TOLERANCE = 50
 const CASES = [
   {
     d: 'simple request',
-    u: '/',
+    u: '/test-simple',
     cache: true,
     expires: false
   },
 
   {
     d: 'expires',
-    u: '/expires-1s',
+    u: '/test-expires-1s',
     h: {
       'Gaia-Expires': '1000'
     },
@@ -40,7 +40,7 @@ const CASES = [
 
   {
     d: 'if code is not 200, no cache',
-    u: '/no-cache',
+    u: '/test-cache-code',
     cache: false,
     h: {
       code: 500
@@ -49,7 +49,7 @@ const CASES = [
 
   {
     d: 'if http status is not 200, no cache',
-    u: '/no-cache',
+    u: '/test-cache-status',
     cache: false,
     h: {
       status: 500
@@ -63,10 +63,22 @@ const CASES = [
     h: {
       'Gaia-Purge': '1'
     }
+  },
+
+  {
+    only: true,
+    d: 'cache pass concurrency',
+    u: '/test-concurrency',
+    cache: true,
+    expires: 1000,
+    concurrency: true,
+    h: {
+      'Gaia-Expires': '1000'
+    }
   }
 ]
 
-CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
+CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
   const _test = only
     ? test.cb.only
     : test.cb
@@ -111,6 +123,40 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
     }
 
     function visit_expire (after) {
+      if (concurrency) {
+        return sleep(after)
+        .then(() => {
+          const tasks = []
+          const max = 10
+          let count = 0
+
+          while (count ++ < max) {
+            tasks.push(v.visit())
+          }
+
+          return Promise.all(tasks)
+        })
+        .then((reses) => {
+          let id
+          return reses.every((res) => {
+
+            if (!id) {
+              id = res.body.headers.id
+              return true
+            }
+
+            return res.body.headers.id === id
+          })
+        })
+        .then((result) => {
+          if (!result) {
+            return Promise.reject('no single cache through.')
+          }
+
+          return Promise.resolve()
+        })
+      }
+
       return sleep(after)
       .then(() => {
         return v.visit()
@@ -121,7 +167,7 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
         t.is(stale, true, 'response should be stale if expires')
         t.is(headers['gaia-status'], 'STALE', 'headers should be stale')
 
-        return sleep(200)
+        return sleep(300)
         .then(() => {
           return visit_again('after reload')
         })
@@ -148,7 +194,7 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
       })
     })
     .catch((err) => {
-      console.error(err.stack)
+      console.error(err.stack || err)
       t.fail()
       end()
     })

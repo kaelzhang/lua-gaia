@@ -21,6 +21,10 @@ sleep 1
 log remove "redis database file"
 rm ./dump.rdb
 
+log remove "nginx logs"
+rm ./logs/access.log
+rm ./logs/error.log
+
 log remove "nohup.out"
 rm ./nohup.out
 

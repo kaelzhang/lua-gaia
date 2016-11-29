@@ -8,6 +8,23 @@ const fse = require('fs-extra')
 const {
   file
 } = require('../lib/util')
+const {
+  debounce
+} = require('lodash')
+
+
+const queue = []
+
+const flush_queue = debounce(() => {
+  const q = [].concat(queue)
+  queue.length = 0
+
+  q.forEach(({res, json}) => {
+    res.json(json)
+  })
+}, 50, {
+  maxWait: 1000
+})
 
 
 function server () {
@@ -20,7 +37,7 @@ function server () {
     const uri = url.parse(req.url, true)
     const headers = req.headers
 
-    const ret = {
+    const json = {
       pathname: uri.pathname,
       query: uri.query,
       headers,
@@ -29,7 +46,12 @@ function server () {
     }
 
     res.status(parseInt(req.headers.status) || 200)
-    res.json(ret)
+    queue.push({
+      res,
+      json
+    })
+
+    flush_queue()
   })
 
   const filename = file('config/server.pid')

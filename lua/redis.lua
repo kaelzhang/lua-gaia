@@ -94,7 +94,7 @@ function M.eset (self, key, value, expires)
 
   -- `ngx.now()` returns seconds with miniseconds as the decimal part
   local expires_at = expires and ngx_now() * 1000 + expires or nil
-ngx.log(ngx.ERR, 'type2:' .. type(value))
+
   local v = json_encode({
     expires = expires_at,
     value = value

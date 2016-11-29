@@ -1,6 +1,7 @@
 const request = require('request')
 const { EventEmitter } = require('events')
 const uuid = require('uuid')
+const clone = require('clone')
 
 const BACKEND_HOST = 'http://127.0.0.1:8080'
 
@@ -49,14 +50,15 @@ module.exports = class Visit extends EventEmitter {
     } = this.options
 
     const id = uuid.v4()
-    headers.id = id
-    headers['User-Agent'] = 'Gaia-Test-Agent'
+    const h = clone(headers)
+    h.id = id
+    h['User-Agent'] = 'Gaia-Test-Agent'
 
     return new Promise((resolve, reject) => {
       request({
         url,
         method: method.toUpperCase(),
-        headers,
+        headers: h,
         body,
         json: true
 
