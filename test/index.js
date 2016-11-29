@@ -36,6 +36,24 @@ const CASES = [
     },
     expires: 1000,
     cache: true
+  },
+
+  {
+    d: 'if code is not 200, no cache',
+    u: '/no-cache',
+    cache: false,
+    h: {
+      code: 500
+    }
+  },
+
+  {
+    d: 'if http status is not 200, no cache',
+    u: '/no-cache',
+    cache: false,
+    h: {
+      status: 500
+    }
   }
 ]
 
@@ -72,16 +90,14 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
       t.deepEqual(body.query, query, `${name}: query`)
       t.deepEqual(body.body, b || {}, `${name}: body`)
       t.is(headers['server'], 'Gaia/1.0.0', `${name}: header server`)
+      t.is(body.headers['user-agent'], 'Gaia-Test-Agent', `${name}: user agent`)
     }
 
-    function visit_again () {
+    function visit_again (name = 'again') {
       return v.visit()
       .then(({body, headers, stale}) => {
-        basic_test('again', body, headers, t)
-
-        if (cache) {
-          t.is(headers['gaia-status'], 'HIT')
-        }
+        basic_test(name, body, headers, t)
+        t.is(headers['gaia-status'], cache ? 'HIT' : 'MISS', `${name}: cache status`)
       })
     }
 
@@ -95,6 +111,11 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b}) => {
 
         t.is(stale, true, 'response should be stale if expires')
         t.is(headers['gaia-status'], 'STALE', 'headers should be stale')
+
+        return sleep(200)
+        .then(() => {
+          return visit_again('after reload')
+        })
       })
     }
 

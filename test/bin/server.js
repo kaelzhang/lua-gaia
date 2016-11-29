@@ -1,3 +1,5 @@
+module.exports = server
+
 const express = require('express')
 const url = require('url')
 const bodyParser = require('body-parser')
@@ -8,7 +10,7 @@ const {
 } = require('../lib/util')
 
 
-module.exports = () => {
+function server () {
   console.log('start server.')
 
   const app = express()
@@ -23,9 +25,10 @@ module.exports = () => {
       query: uri.query,
       headers,
       body: req.body,
-      code: req.headers.code || 200
+      code: parseInt(req.headers.code) || 200
     }
 
+    res.status(parseInt(req.headers.status) || 200)
     res.json(ret)
   })
 
@@ -48,4 +51,9 @@ module.exports = () => {
       resolve()
     })
   })
+}
+
+
+if (require.main === module) {
+  server()
 }

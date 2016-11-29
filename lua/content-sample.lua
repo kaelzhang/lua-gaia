@@ -15,7 +15,7 @@ end
 local function on_response (res, hit, stale, expires_at)
   local header = ngx.header
 
-  for k, v in pairs(res.header) do
+  for k, v in pairs(res.headers) do
     header[k] = v
   end
 

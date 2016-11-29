@@ -7,7 +7,7 @@ function ensure_no_process (pid, description) {
     return Promise.resolve()
   }
 
-  console.log(`kill "${description}" process, pid: ${pid}`)
+  console.log(`kill process ${pid} <- "${description}"`)
 
   return new Promise((resolve, reject) => {
     spawn('kill', [

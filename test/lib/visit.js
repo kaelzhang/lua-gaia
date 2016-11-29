@@ -50,6 +50,7 @@ module.exports = class Visit extends EventEmitter {
 
     const id = uuid.v4()
     headers.id = id
+    headers['User-Agent'] = 'Gaia-Test-Agent'
 
     return new Promise((resolve, reject) => {
       request({
@@ -64,11 +65,12 @@ module.exports = class Visit extends EventEmitter {
           return reject(err)
         }
 
-        resolve({
+        const ret = {
           body,
           headers: res.headers,
           stale: res.headers.id !== id
-        })
+        }
+        resolve(ret)
       })
     })
   }

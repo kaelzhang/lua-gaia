@@ -23,7 +23,7 @@ end
 
 -- by default, always cache
 local function when (res)
-  return true
+  return res
 end
 
 
@@ -71,11 +71,17 @@ function M.loader (self, fn)
 end
 
 
-function M.reload (self, key)
-  local res = self._load(key)
+function M.expires (self, fn)
+  self._get_expires = fn
+  return self
+end
+
+
+function M.reload (self, key, options)
+  local res = self._load(options)
 
   if self._when(res) then
-    self._set(key, res)
+    self._set(key, res, options.expires)
   end
 
   return res
@@ -96,7 +102,28 @@ function M.get(self, on_response, force_reload)
     reloaded = true
     hit = false
     stale = false
-    res = self:reload(key)
+    res = self:reload(key, {
+      expires = self._get_expires(),
+      sub_request = true
+    })
+  end
+
+  -- lua has block scope
+  local expires = nil
+  local uri = nil
+  local query = nil
+  local headers = nil
+  local body = nil
+  local method = nil
+
+  -- Prefetch parameters before connection closed.
+  if stale then
+    expires = self._get_expires()
+    uri = ngx.var.uri
+    headers = ngx.req.get_headers() or {}
+    query = ngx.req.get_uri_args() or {}
+    body = ngx.req.get_body_data() or ''
+    method = ngx.var.request_method or 'GET'
   end
 
   on_response(res, hit, stale, expires_at)
@@ -104,7 +131,14 @@ function M.get(self, on_response, force_reload)
   -- If stale, then we need reload cache
   -- TODO: concurrency
   if stale then
-    self:reload(key)
+    self:reload(key, {
+      expires = expires,
+      uri = uri,
+      headers = headers,
+      args = args,
+      body = body,
+      method = method
+    })
   end
 end
 
