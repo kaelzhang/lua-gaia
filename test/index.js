@@ -54,6 +54,15 @@ const CASES = [
     h: {
       status: 500
     }
+  },
+
+  {
+    d: 'cache purge',
+    u: '/test-purge',
+    cache: false,
+    h: {
+      'Gaia-Purge': '1'
+    }
   }
 ]
 
