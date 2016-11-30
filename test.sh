@@ -24,6 +24,8 @@ rm ./dump.rdb
 log remove "nginx logs"
 rm ./logs/access.log
 rm ./logs/error.log
+rm ./logs/server.log
+rm ./logs/server-access.log
 
 log remove "nohup.out"
 rm ./nohup.out

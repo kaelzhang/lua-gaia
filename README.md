@@ -16,9 +16,10 @@
 
 Gaia, the NginX cache addons in Lua based on OpenResty.
 
-## Install
-
-
+- Cache smooth reloading.
+- Ensures that there is only one single connection to the backend if cache expires.
+- Cache purging.
+- Custom cache hash key.
 
 ## License
 

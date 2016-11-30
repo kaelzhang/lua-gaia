@@ -11,13 +11,13 @@ module.exports = class Visit extends EventEmitter {
     this.options = options
   }
 
-  visit () {
+  visit (options) {
     if (!this.visited) {
-      return this._visit()
+      return this._visit(options)
     }
 
     if (this.ready) {
-      return this._request()
+      return this._request(options)
     }
 
     return new Promise((resolve) => {
@@ -30,8 +30,8 @@ module.exports = class Visit extends EventEmitter {
     })
   }
 
-  _visit () {
-    return this._request()
+  _visit (options) {
+    return this._request(options)
     .then((res) => {
       this.ready = true
       this.emit('ready')
@@ -39,7 +39,9 @@ module.exports = class Visit extends EventEmitter {
     })
   }
 
-  _request () {
+  _request ({
+    log = false
+  } = {}) {
     this.visited = true
 
     const {
@@ -54,15 +56,21 @@ module.exports = class Visit extends EventEmitter {
     h.id = id
     h['User-Agent'] = 'Gaia-Test-Agent'
 
+    if (log) {
+      h['Turn-On-Test-Log'] = '1'
+    }
+
     return new Promise((resolve, reject) => {
-      request({
+      const options = {
         url,
         method: method.toUpperCase(),
         headers: h,
         body,
         json: true
+      }
 
-      }, (err, res, body) => {
+      request(options, (err, res, body) => {
+        console.log(err)
         if (err) {
           return reject(err)
         }

@@ -37,10 +37,21 @@ function server () {
     const uri = url.parse(req.url, true)
     const headers = req.headers
 
+    fse.outputFileSync(file('logs/server-access.log'), `${req.method}:${req.url}\n`, {
+      flag: 'a'
+    })
+
+    if (headers['turn-on-test-log']) {
+      fse.outputFileSync(file('logs/server.log'), `${headers.id}\n`, {
+        flag: 'a'
+      })
+    }
+
     const json = {
       pathname: uri.pathname,
       query: uri.query,
       headers,
+      method: req.method,
       body: req.body,
       code: parseInt(req.headers.code) || 200
     }

@@ -81,7 +81,7 @@ function M.reload (self, key, options)
   local res = self._load(key, options)
 
   -- 1. if response is not valid
-  -- 2. or it is already queued, then load method will return
+  -- 2. or it is already queued, then _load() will return nil
   if res and self._when(res) then
     self._set(key, res, options.expires)
   end

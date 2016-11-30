@@ -12,14 +12,14 @@ local json_encode = json.encode
 local json_decode = json.decode
 
 local http = require 'queued-http'
-local http_connection = http.connection
+local http_connection = http.http_connection
 local queued_connection = http.queued_connection
 
 
 local red = redis:new()
 
 local function hash_key ()
-  local key = ngx.var.uri
+  local key = ngx.var.request_method .. ':' .. ngx.var.uri
   local headers = ngx.req.get_headers()
 
   local custom_field = headers['gaia-custom-field']
@@ -65,10 +65,19 @@ local function remove_key (t, keys)
 end
 
 
+local REQUEST_METHOD_MAP = {
+  GET = ngx.HTTP_GET,
+  POST = ngx.HTTP_POST,
+  DELETE = ngx.HTTP_DELETE,
+  _ = ngx.HTTP_GET
+}
+
 local function load (key, options)
   if options.sub_request then
     local res = ngx.location.capture(BACKEND_PREFIX .. ngx.var.uri, {
-      args = ngx.req.get_uri_args()
+      args = ngx.req.get_uri_args(),
+      method = REQUEST_METHOD_MAP[ngx.var.request_method]
+        or REQUEST_METHOD_MAP._
     })
 
     return {

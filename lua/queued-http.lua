@@ -1,17 +1,18 @@
 local http = require 'resty.http'
 local http_new = http.new
 
-local queued = {}
-
 local function queued_connection (key, uri, options)
-  if queued[key] then
+  local queue = ngx.shared.gaia_queue
+  local queued = queue:get(key)
+
+  if queued then
     return nil, nil
   end
 
-  queued[key] = true
+  queue:set(key, true)
   local httpc = http_new()
   local res, err = httpc:request_uri(uri, options)
-  queued[key] = nil
+  queue:delete(key)
 
   return res, err
 end

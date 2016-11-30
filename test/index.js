@@ -29,6 +29,14 @@ const CASES = [
   },
 
   {
+    d: 'post request: should not be messed up with get request',
+    delay: 100,
+    u: '/test-simple',
+    cache: false,
+    method: 'POST'
+  },
+
+  {
     d: 'expires',
     u: '/test-expires-1s',
     h: {
@@ -77,7 +85,7 @@ const CASES = [
   }
 ]
 
-CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
+CASES.forEach(({d, u, delay, cache, expires, only, h, method, b, concurrency}) => {
   const _test = only
     ? test.cb.only
     : test.cb
@@ -131,7 +139,9 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
           let count = 0
 
           while (count ++ < max) {
-            tasks.push(v.visit())
+            tasks.push(v.visit({
+              log: true
+            }))
           }
 
           return Promise.all(tasks)
@@ -157,7 +167,15 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
             return Promise.reject('no single cache through.')
           }
 
-          return Promise.resolve()
+          return sleep(50)
+          .then(x => read(file('logs/server.log')))
+          .then((content) => {
+            const logs_count = content.split(/\r|\n/)
+            .map(x => x.trim())
+            .filter(Boolean)
+
+            t.is(logs_count.length, 1, 'concurrency: many connections occur.')
+          })
         })
       }
 
@@ -178,7 +196,22 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
       })
     }
 
-    v.visit().then(({body, headers, stale}) => {
+
+    function start () {
+      console.log(delay)
+      if (delay) {
+        return sleep(delay)
+        .then(() => {
+          console.log('after delay')
+          return v.visit()
+        })
+      }
+
+      return v.visit()
+    }
+
+    start()
+    .then(({body, headers, stale}) => {
       basic_test('first', body, headers)
       t.is(headers['gaia-status'], 'MISS')
 
@@ -203,4 +236,13 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
       end()
     })
   })
+})
+
+
+test.after('there should be no error logs', t => {
+  function contains_then_fail () {
+
+  }
+
+
 })
