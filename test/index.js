@@ -24,13 +24,12 @@ const CASES = [
   {
     d: 'simple request',
     u: '/test-simple',
-    cache: true,
-    expires: false
+    cache: true
   },
 
   {
     d: 'post request: should not be messed up with get request',
-    delay: 100,
+    delay: 200,
     u: '/test-simple',
     cache: true,
     method: 'POST'
@@ -46,6 +45,16 @@ const CASES = [
     cache: true,
     method: 'POST',
     b: '{"foo":1}'
+  },
+
+  {
+    d: 'custom field to distinguish other requests',
+    delay: 200,
+    u: '/test-simple',
+    cache: true,
+    h: {
+      'Gaia-Custom-Field': '1'
+    }
   },
 
   {
@@ -261,6 +270,4 @@ test.after('there should be no error logs', t => {
   function contains_then_fail () {
 
   }
-
-
 })
