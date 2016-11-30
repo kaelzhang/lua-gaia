@@ -65,14 +65,15 @@ module.exports = class Visit extends EventEmitter {
         uri: url,
         method: method.toUpperCase(),
         headers: h,
-        body,
-        json: true
+        body
       }
 
       request(options, (err, res, body) => {
         if (err) {
           return reject(err)
         }
+
+        body = JSON.parse(body)
 
         const ret = {
           body,

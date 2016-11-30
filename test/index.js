@@ -37,6 +37,18 @@ const CASES = [
   },
 
   {
+    d: 'post request: body',
+    u: '/test-post-body',
+    h: {
+      'Gaia-Include-Body': '1',
+      'Content-Type': 'application/json'
+    },
+    cache: true,
+    method: 'POST',
+    b: '{"foo":1}'
+  },
+
+  {
     d: 'expires',
     u: '/test-expires-1s',
     h: {
@@ -85,7 +97,7 @@ const CASES = [
   }
 ]
 
-CASES.forEach(({d, u, delay, cache, expires, only, h, method, b, concurrency}) => {
+CASES.forEach(({d, u, delay, cache, expires, only, h, method = 'GET', b, concurrency}) => {
   const _test = only
     ? test.cb.only
     : test.cb
@@ -113,11 +125,20 @@ CASES.forEach(({d, u, delay, cache, expires, only, h, method, b, concurrency}) =
       body: b
     })
 
+    function json_parse (string) {
+      try {
+        return JSON.parse(string)
+      } catch (e) {
+        return {}
+      }
+    }
+
     function basic_test (name, body, headers) {
       t.is(body.pathname, pathname, `${name}: pathname`)
       t.deepEqual(body.query, query, `${name}: query`)
-      t.deepEqual(body.body, b || {}, `${name}: body`)
+      t.deepEqual(body.body, json_parse(b), `${name}: body`)
       t.is(headers['server'], 'Gaia/1.0.0', `${name}: header server`)
+      t.is(body.method.toUpperCase(), method.toUpperCase())
       t.is(body.headers['user-agent'], 'Gaia-Test-Agent', `${name}: user agent`)
     }
 

@@ -11,10 +11,7 @@ local json = require 'cjson'
 local json_encode = json.encode
 local json_decode = json.decode
 
-local http = require 'queued-http'
-local http_connection = http.http_connection
-local queued_connection = http.queued_connection
-
+local queued_connection = require 'queued-http'
 
 local red = redis:new()
 
@@ -31,7 +28,6 @@ local function hash_key ()
   key = key .. ',args=' .. json_encode(args)
 
   if headers['gaia-enable-body'] then
-    ngx.req.read_body()
     key = key .. ',body=' .. ngx.req.get_body_data()
   end
 
@@ -103,9 +99,12 @@ local function load (key, options)
     'content-length'
   })
 
-  local res, err = options.single_through
-    and queued_connection(key, BACKEND_SERVER .. options.uri, options)
-    or http_connection(BACKEND_SERVER .. options.uri, options)
+  local res, err = queued_connection(
+    key,
+    BACKEND_SERVER .. options.uri,
+    options,
+    options.single_through
+  )
 
   return not err and res and {
     status = res.status,

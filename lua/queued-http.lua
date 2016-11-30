@@ -1,7 +1,11 @@
 local http = require 'resty.http'
 local http_new = http.new
 
-local function queued_connection (key, uri, options)
+local function queued_connection (key, uri, options, use_queue)
+  if not use_queue then
+    return http_connection(uri, options)
+  end
+
   local queue = ngx.shared.gaia_queue
   local queued = queue:get(key)
 
@@ -24,7 +28,4 @@ local function http_connection (uri, options)
 end
 
 
-return {
-  queued_connection = queued_connection,
-  http_connection = http_connection
-}
+return queued_connection

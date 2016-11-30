@@ -34,7 +34,6 @@ function server () {
   app.use(bodyParser.json())
 
   app.use((req, res) => {
-  console.log(req.url)
     const uri = url.parse(req.url, true)
     const headers = req.headers
 
