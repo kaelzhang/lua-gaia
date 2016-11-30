@@ -106,6 +106,8 @@ function M.get(self, on_response, force_reload)
     stale = false
     res = self:reload(key, {
       expires = self._get_expires(),
+      -- `sub_request` indicates that it is a request that should come up with
+      -- the main request sychronously
       sub_request = true
     })
   end

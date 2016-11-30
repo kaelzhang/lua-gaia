@@ -1,12 +1,15 @@
 local http = require 'resty.http'
 local http_new = http.new
+local lrucache = require 'resty.lrucache'
+
+-- This functionality needs `lua_code_cache on;` to work.
+local queue = lrucache.new(2000)
 
 local function queued_connection (key, uri, options, use_queue)
   if not use_queue then
     return http_connection(uri, options)
   end
 
-  local queue = ngx.shared.gaia_queue
   local queued = queue:get(key)
 
   if queued then
