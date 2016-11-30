@@ -66,8 +66,7 @@ const CASES = [
   },
 
   {
-    only: true,
-    d: 'cache pass concurrency',
+    d: 'concurrency: shoule get the same response when stale',
     u: '/test-concurrency',
     cache: true,
     expires: 1000,
@@ -124,6 +123,7 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
 
     function visit_expire (after) {
       if (concurrency) {
+        let id
         return sleep(after)
         .then(() => {
           const tasks = []
@@ -137,8 +137,12 @@ CASES.forEach(({d, u, cache, expires, only, h, method, b, concurrency}) => {
           return Promise.all(tasks)
         })
         .then((reses) => {
-          let id
           return reses.every((res) => {
+            t.is(
+              res.headers['gaia-status'],
+              'STALE',
+              'headers should be stale'
+            )
 
             if (!id) {
               id = res.body.headers.id

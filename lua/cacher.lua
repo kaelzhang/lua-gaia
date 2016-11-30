@@ -23,7 +23,7 @@ end
 
 -- by default, always cache
 local function when (res)
-  return res
+  return true
 end
 
 
@@ -78,9 +78,11 @@ end
 
 
 function M.reload (self, key, options)
-  local res = self._load(options)
+  local res = self._load(key, options)
 
-  if self._when(res) then
+  -- 1. if response is not valid
+  -- 2. or it is already queued, then load method will return
+  if res and self._when(res) then
     self._set(key, res, options.expires)
   end
 
@@ -132,6 +134,8 @@ function M.get(self, on_response, force_reload)
   -- TODO: concurrency
   if stale then
     self:reload(key, {
+      -- Only allow single http connection to penetrate Gaia
+      single_through = true,
       expires = expires,
       uri = uri,
       headers = headers,

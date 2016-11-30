@@ -7,10 +7,13 @@ local BACKEND_SERVER = 'http://127.0.0.1:8081'
 
 local cacher = require 'cacher'
 local redis = require 'redis'
-local http = require 'resty.http'
 local json = require 'cjson'
 local json_encode = json.encode
 local json_decode = json.decode
+
+local http = require 'queued-http'
+local http_connection = http.connection
+local queued_connection = http.queued_connection
 
 
 local red = redis:new()
@@ -62,7 +65,7 @@ local function remove_key (t, keys)
 end
 
 
-local function load (options)
+local function load (key, options)
   if options.sub_request then
     local res = ngx.location.capture(BACKEND_PREFIX .. ngx.var.uri, {
       args = ngx.req.get_uri_args()
@@ -76,14 +79,16 @@ local function load (options)
     }
   end
 
-  local httpc = http.new()
   options.headers = remove_key(options.headers, {
     'connection',
     'content-length'
   })
 
-  local res, err = httpc:request_uri(BACKEND_SERVER .. options.uri, options)
-  return not err and {
+  local res, err = options.single_through
+    and queued_connection(key, BACKEND_SERVER .. options.uri, options)
+    or http_connection(BACKEND_SERVER .. options.uri, options)
+
+  return not err and res and {
     status = res.status,
     headers = res.headers,
     body = res.body
