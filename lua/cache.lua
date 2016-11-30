@@ -74,11 +74,21 @@ local REQUEST_METHOD_MAP = {
 
 local function load (key, options)
   if options.sub_request then
-    local res = ngx.location.capture(BACKEND_PREFIX .. ngx.var.uri, {
+    local method = ngx.var.request_method
+    local capture_options = {
       args = ngx.req.get_uri_args(),
-      method = REQUEST_METHOD_MAP[ngx.var.request_method]
+      method = REQUEST_METHOD_MAP[method]
         or REQUEST_METHOD_MAP._
-    })
+    }
+
+    if method ~= 'GET' then
+      capture_options.body = ngx.req.get_body_data() or ''
+    end
+
+    local res = ngx.location.capture(
+      BACKEND_PREFIX .. ngx.var.uri,
+      capture_options
+    )
 
     return {
       status = res.status,

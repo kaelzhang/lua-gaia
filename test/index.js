@@ -32,7 +32,7 @@ const CASES = [
     d: 'post request: should not be messed up with get request',
     delay: 100,
     u: '/test-simple',
-    cache: false,
+    cache: true,
     method: 'POST'
   },
 
@@ -196,13 +196,10 @@ CASES.forEach(({d, u, delay, cache, expires, only, h, method, b, concurrency}) =
       })
     }
 
-
     function start () {
-      console.log(delay)
       if (delay) {
         return sleep(delay)
         .then(() => {
-          console.log('after delay')
           return v.visit()
         })
       }

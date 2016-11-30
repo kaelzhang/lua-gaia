@@ -62,7 +62,7 @@ module.exports = class Visit extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       const options = {
-        url,
+        uri: url,
         method: method.toUpperCase(),
         headers: h,
         body,
@@ -70,7 +70,6 @@ module.exports = class Visit extends EventEmitter {
       }
 
       request(options, (err, res, body) => {
-        console.log(err)
         if (err) {
           return reject(err)
         }

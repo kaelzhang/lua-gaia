@@ -31,5 +31,4 @@ local function on_response (res, hit, stale, expires_at)
   ngx.eof()
 end
 
-
 cache:get(on_response, headers['gaia-purge'])
