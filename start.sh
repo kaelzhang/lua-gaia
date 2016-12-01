@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#
+# Exit with the given <msg ...>
 abort() {
   printf "\n\x1B[31mError: $@\x1B[0m\n\n"
   exit 1
@@ -12,8 +12,10 @@ log() {
   printf " \x1B[90m$@\x1B[0m\n"
 }
 
+bash ./stop.sh
 
-bash ./start.sh
+log restart services
+nohup node ./test/bin/start-all.js &
 
-log run "test cases"
-ava --verbose --timeout=10s || abort "test fails"
+log start redis
+nohup redis-server ./config/redis.conf &
