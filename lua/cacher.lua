@@ -90,7 +90,7 @@ function M.reload (self, key, options)
 end
 
 
-function M.get(self, on_response, force_reload)
+function M.get (self, on_response, force_reload)
   local key = self._hash_key()
   local res, err, stale, expires_at = self._get(key)
 
@@ -141,7 +141,7 @@ function M.get(self, on_response, force_reload)
       expires = expires,
       uri = uri,
       headers = headers,
-      args = args,
+      query = query,
       body = body,
       method = method
     })

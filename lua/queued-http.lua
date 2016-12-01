@@ -6,6 +6,9 @@ local lrucache = require 'resty.lrucache'
 local queue = lrucache.new(2000)
 
 local function queued_connection (key, uri, options, use_queue)
+  -- Explicitly tell the backend server not to send gzip content
+  options.headers['accept-encoding'] = 'gzip;q=0,deflate,sdch'
+
   if not use_queue then
     return http_connection(uri, options)
   end

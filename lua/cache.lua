@@ -2,8 +2,16 @@
 
 -- We use a nginx rewrite directive with break
 -- to proxy pass the request to the backend server.
+
+
+--------------------------------------------------------------------
+-- Most usually, you should change things inside -------------------
+
 local BACKEND_PREFIX = '/_'
 local BACKEND_SERVER = 'http://127.0.0.1:8081'
+local DEFAULT_EXPIRES = 5000
+
+--------------------------------------------------------------------
 
 local cacher = require 'cacher'
 local redis = require 'redis'
@@ -115,23 +123,19 @@ end
 
 
 local function when (res)
-  if not res then
+  if res.status ~= 200 then
     return false
   end
 
   local ok, parsed = pcall(json_decode, res.body)
-  return res.status == 200 and (
-    -- is not json
-    not ok
-    -- json with code: 200
-    or ok and parsed.code == 200
-  )
+  -- json with code: 200
+  return ok and tonumber(parsed.code) == 200 or res.body == ''
 end
 
 
 local function expires ()
   local expire_header = ngx.req.get_headers()['gaia-expires']
-  return expire_header and tonumber(expire_header) or nil
+  return expire_header and tonumber(expire_header) or DEFAULT_EXPIRES
 end
 
 
