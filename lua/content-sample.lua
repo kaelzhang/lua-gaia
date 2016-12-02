@@ -20,7 +20,8 @@ local function on_response (res, hit, stale, expires_at)
     hit and 'HIT' or 'MISS'
 
   if expires_at then
-    header[STR_GAIA_EXPIRES_AT] = tostring(expires_at)
+    header[STR_GAIA_EXPIRES_AT] =
+      os.date('%Y-%m-%d %H:%M:%S', expires_at / 1000)
   end
 
   ngx.say(res.body)
