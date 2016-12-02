@@ -33,13 +33,9 @@ local function hash_key ()
   end
 
   local args = ngx.req.get_uri_args()
-  key = key .. ',args=' .. json_encode(args)
 
-  if headers['gaia-enable-body'] then
-    key = key .. ',body=' .. ngx.req.get_body_data()
-  end
-
-  return key
+  return key .. ',args=' .. json_encode(args)
+    .. ',body=' .. (ngx.req.get_body_data() or '')
 end
 
 

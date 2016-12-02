@@ -5,11 +5,7 @@ local STR_GAIA_STATUS = 'Gaia-Status'
 local STR_GAIA_EXPIRES_AT = 'Gaia-Expires-At'
 
 -----------------------------------------------------------
-
--- Explicitly tell the cache to include body
-if headers['gaia-include-body'] then
-  ngx.req.read_body()
-end
+-- If body needed, use `lua_need_request_body on`
 
 
 local function on_response (res, hit, stale, expires_at)

@@ -39,7 +39,6 @@ const CASES = [
     d: 'post request: body',
     u: '/test-post-body',
     h: {
-      'Gaia-Include-Body': '1',
       'Content-Type': 'application/json'
     },
     cache: true,
