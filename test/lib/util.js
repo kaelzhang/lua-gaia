@@ -40,11 +40,11 @@ function read (filename) {
 }
 
 
-const PROJECT_ROOT = path.join(__dirname, '..', '..')
+const NGINX_ROOT = path.join(__dirname, '..', '..', 'nginx')
 function file (...paths) {
   return paths.length
-    ? path.join(PROJECT_ROOT, ...paths)
-    : PROJECT_ROOT
+    ? path.join(NGINX_ROOT, ...paths)
+    : NGINX_ROOT
 }
 
 

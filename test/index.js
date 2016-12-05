@@ -9,7 +9,7 @@ const {
 } = require('./lib/util')
 
 test.cb('environment: should has no errors', t => {
-  read(file('nohup.out'))
+  read(file('../nohup.out'))
   .then((content) => {
     console.log(`nohup.out:\n${content}\n`)
     t.is(/error/i.test(content), false)

@@ -5,14 +5,15 @@ const {
 
 module.exports = () => {
   return new Promise((resolve) => {
-    console.log('start openresty.')
-    spawn('openresty', [
+    const args = [
       '-c',
-      file('config/nginx-sample.conf'),
+      file('nginx-sample.conf'),
       '-p',
       file()
+    ]
 
-    ], {
+    console.log(`openresty ${args.join(' ')}`)
+    spawn('openresty', args, {
       stdio: 'inherit'
     })
     .on('close', () => {

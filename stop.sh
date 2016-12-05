@@ -22,10 +22,10 @@ log remove "redis database file"
 rm ./dump.rdb
 
 log remove "nginx logs"
-rm ./logs/access.log
-rm ./logs/error.log
-rm ./logs/server.log
-rm ./logs/server-access.log
+rm ./nginx/logs/access.log
+rm ./nginx/logs/error.log
+rm ./nginx/logs/server.log
+rm ./nginx/logs/server-access.log
 
 log remove "nohup.out"
 rm ./nohup.out

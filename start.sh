@@ -18,4 +18,4 @@ log restart services
 nohup node ./test/bin/start-all.js &
 
 log start redis
-nohup redis-server ./config/redis.conf &
+nohup redis-server ./nginx/config/redis.conf &
