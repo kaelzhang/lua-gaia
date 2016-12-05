@@ -16,9 +16,6 @@ redis.conf
 proxy_temp
 scgi_temp
 
-# babel
-/lib
-
 # Numerous always-ignore extensions
 *.bak
 *.patch
