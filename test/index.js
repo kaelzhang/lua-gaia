@@ -105,6 +105,16 @@ const CASES = [
   }
 ]
 
+
+function json_parse (string) {
+  try {
+    return JSON.parse(string)
+  } catch (e) {
+    return {}
+  }
+}
+
+
 CASES.forEach(({d, u, delay, cache, expires, only, h, method = 'GET', b, concurrency}) => {
   const _test = only
     ? test.cb.only
@@ -132,14 +142,6 @@ CASES.forEach(({d, u, delay, cache, expires, only, h, method = 'GET', b, concurr
       headers: h,
       body: b
     })
-
-    function json_parse (string) {
-      try {
-        return JSON.parse(string)
-      } catch (e) {
-        return {}
-      }
-    }
 
     function basic_test (name, body, headers) {
       t.is(body.pathname, pathname, `${name}: pathname`)
@@ -261,6 +263,50 @@ CASES.forEach(({d, u, delay, cache, expires, only, h, method = 'GET', b, concurr
       t.fail()
       end()
     })
+  })
+})
+
+
+test.cb('should instantly response even if stale', t => {
+  const pathname = '/slow-response'
+  const method = 'GET'
+  const query = {}
+
+  const v = new Visit({
+    url: `${BACKEND_HOST}${pathname}`,
+    method,
+    headers: {
+      'Gaia-Expires': '10',
+      'Slow-Response': '1'
+    }
+  })
+
+  function basic_test (body, headers, name = 'slow-response-stale') {
+    t.is(body.pathname, pathname, `${name}: pathname`)
+    t.deepEqual(body.query, query, `${name}: query`)
+    t.is(headers['server'], 'Gaia/1.0.0', `${name}: header server`)
+    t.is(body.method.toUpperCase(), method.toUpperCase())
+    t.is(body.headers['user-agent'], 'Gaia-Test-Agent', `${name}: user agent`)
+  }
+
+  v.visit()
+  .then(({body, headers, stale}) => {
+    basic_test(body, headers)
+    t.is(stale, false)
+
+    return sleep(50)
+    .then(x => v.visit())
+    .then(({body, headers, stale}) => {
+      t.is(stale, true)
+      t.is(body.spent < 2000, true)
+    })
+  })
+  .then(() => {
+    t.end()
+  })
+  .catch((err) => {
+    t.fail(err.stack)
+    t.end()
   })
 })
 

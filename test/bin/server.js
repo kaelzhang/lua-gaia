@@ -13,17 +13,52 @@ const {
 } = require('lodash')
 
 
-const queue = []
+class Queue {
+  constructor ({interval, max_wait}) {
+    this.queue = []
+    this.interval = interval
+    this.max_wait = max_wait
+    this.flush = debounce(this.flush, this.interval, {
+      maxWait: this.max_wait
+    })
+    this.counter = 0
+  }
 
-const flush_queue = debounce(() => {
-  const q = [].concat(queue)
-  queue.length = 0
+  push (task) {
+    task.time = + new Date
+    this.queue.push(task)
+    return this
+  }
 
-  q.forEach(({res, json}) => {
-    res.json(json)
-  })
-}, 50, {
-  maxWait: 1000
+  count () {
+    return this.counter
+  }
+
+  run (task) {
+    this.counter ++
+    task.json.spent = task.time
+      ? + new Date - task.time
+      : 0
+    task.res.json(task.json)
+  }
+
+  flush () {
+    const q = [].concat(this.queue)
+    this.queue.length = 0
+
+    q.forEach((task) => {
+      this.run(task)
+    })
+  }
+}
+
+
+const queue = new Queue({
+  interval: 50,
+  max_wait: 1000
+})
+const slow_queue = new Queue({
+  interval: 2000
 })
 
 
@@ -57,12 +92,19 @@ function server () {
     }
 
     res.status(parseInt(req.headers.status) || 200)
-    queue.push({
+
+    const task = {
       res,
       json
-    })
+    }
 
-    flush_queue()
+    if (headers['slow-response']) {
+      slow_queue.count() > 0
+        ? slow_queue.push(task).flush()
+        : slow_queue.run(task)
+    } else {
+      queue.push(task).flush()
+    }
   })
 
   const filename = file('config/server.pid')

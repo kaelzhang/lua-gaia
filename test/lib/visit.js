@@ -78,7 +78,7 @@ module.exports = class Visit extends EventEmitter {
         const ret = {
           body,
           headers: res.headers,
-          stale: res.headers.id !== id
+          stale: body.headers.id !== id
         }
         resolve(ret)
       })
