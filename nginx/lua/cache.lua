@@ -8,7 +8,7 @@
 -- Most usually, you should change things inside -------------------
 
 local BACKEND_PREFIX = '/_'
-local BACKEND_SERVER = 'http://127.0.0.1:8081'
+local BACKEND_HOST = 'http://127.0.0.1:8080'
 local DEFAULT_EXPIRES = 5000
 
 --------------------------------------------------------------------
@@ -105,7 +105,7 @@ local function load (key, options)
 
   local res, err = queued_connection(
     key,
-    BACKEND_SERVER .. options.uri,
+    BACKEND_HOST .. BACKEND_PREFIX .. options.uri,
     options,
     options.single_through
   )

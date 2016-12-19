@@ -22,6 +22,11 @@ local function queued_connection (key, uri, options, use_queue)
   queue:set(key, true)
   local httpc = http_new()
   local res, err = httpc:request_uri(uri, options)
+
+  if err then
+    ngx.log(ngx.ERR, '[Gaia Reload] ' .. err)
+  end
+
   queue:delete(key)
 
   return res, err

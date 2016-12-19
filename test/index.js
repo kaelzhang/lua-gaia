@@ -170,9 +170,11 @@ CASES.forEach(({d, u, delay, cache, expires, only, h, method = 'GET', b, concurr
           let count = 0
 
           while (count ++ < max) {
-            tasks.push(v.visit({
+            const task = v.visit({
               log: true
-            }))
+            })
+
+            tasks.push(task)
           }
 
           return Promise.all(tasks)
@@ -243,20 +245,15 @@ CASES.forEach(({d, u, delay, cache, expires, only, h, method = 'GET', b, concurr
       basic_test('first', body, headers)
       t.is(headers['gaia-status'], 'MISS')
 
-      const tasks = [
-        visit_again()
-      ]
-
+      return visit_again()
+    })
+    .then(() => {
       if (cache && expires) {
-        tasks.push(
-          visit_expire(expires)
-        )
+        return visit_expire(expires)
       }
-
-      Promise.all(tasks)
-      .then(() => {
-        end()
-      })
+    })
+    .then(() => {
+      end()
     })
     .catch((err) => {
       console.error(err.stack || err)
